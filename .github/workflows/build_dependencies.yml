@@ -22,15 +22,20 @@ env:
 jobs:
   build-win:
       runs-on: windows-latest
+      strategy:
+        matrix:
+          python:
+            - 3.9.6
       steps:
         - name: Checkout Code
           uses: actions/checkout@v3
         - name: TEMP - Remove poetry.lock file
           run: rm poetry.lock
-        - name: setup pyenv
-          uses: "gabrielfalcao/pyenv-action@v18"
+        - name: Install python version
+          uses: gabrielfalcao/pyenv-action@v18
           with:
-            default: 3.9.6
+            default: "${{ matrix.python }}"
+            command: pip install -U pip  # upgrade pip after installing python
         - name: Run Ayon-Dependency-Tool
           run: |
             Set-ExecutionPolicy -ExecutionPolicy unrestricted -Scope LocalMachine
