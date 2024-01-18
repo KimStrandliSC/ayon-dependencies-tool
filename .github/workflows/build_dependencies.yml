@@ -18,31 +18,32 @@ env:
   AYON_SERVER_URL: ${{secrets.AYON_SERVER_URL}}
   AYON_API_KEY: ${{secrets.AYON_API_KEY}}
 
+
 jobs:
   build-win:
       runs-on: windows-latest
       steps:
-        - name: Install PyEnv
-          run: |
-            Set-ExecutionPolicy unrestricted
-            Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
+        - name: Setup Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.9.6'
+        - name: setup pyenv
+          id: pyenv_installation
+          uses: "gabrielfalcao/pyenv-action@v18"
+        - name: debug pyenv
+          run: echo ${{ steps.pyenv_installation.outputs.pyenv_root }}
         - name: Checkout Code
           uses: actions/checkout@v3
         - name: TEMP - Remove poetry.lock file
           run: rm poetry.lock
-        - name: Install Python
-          run: |
-            pyenv install 3.9.6
-            pyenv global 3.9.6
-            pyenv local 3.9.6
         - name: Run Ayon-Dependency-Tool
           run: |
-            PowerShell -ExecutionPolicy Bypass
+            pyenv global 3.9.6
+            pyenv local 3.9.6
             Set-ExecutionPolicy -ExecutionPolicy unrestricted -Scope LocalMachine
             mkdir build_win
             ./start.ps1 install
-            ./start.ps1 create -b ${{github.event.inputs.bundlename}} --server ${{secrets.AYON_SERVER_URL}} --api-key ${{secrets.AYON_API_KEY}} --output-dir ./build_win
+            ./start.ps1 create -b ${{github.event.inputs.bundlename}} --output-dir ./build_win
             cd build_win
             ls
-
           shell: pwsh
