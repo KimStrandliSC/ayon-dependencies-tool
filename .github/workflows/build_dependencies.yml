@@ -30,10 +30,9 @@ jobs:
         - name: setup pyenv
           id: pyenv_installation
           uses: "gabrielfalcao/pyenv-action@v18"
-          with:
-            default: 3.9.6
         - name: Config pyenv
           run: |
+            pyenv install 3.9.6
             pyenv global 3.9.6
             pyenv local 3.9.6
         - name: debug pyenv
