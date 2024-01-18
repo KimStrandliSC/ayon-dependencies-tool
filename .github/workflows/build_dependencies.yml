@@ -33,7 +33,8 @@ jobs:
         - name: debug pyenv
           run: |
             echo ${{ steps.pyenv_installation.outputs.pyenv_root }}
-            pyenv which python
+            $result = pyenv which python
+            Write-Output $result
         - name: Checkout Code
           uses: actions/checkout@v3
         - name: TEMP - Remove poetry.lock file
