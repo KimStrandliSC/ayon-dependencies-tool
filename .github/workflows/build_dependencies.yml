@@ -1,0 +1,86 @@
+name: Build Dependency Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+        bundlename:
+          type: string
+          description: The name of the Ayon-bundle to make dependency package for.
+          required: true
+        python_version:
+          type: string
+          default: 3.9.6
+          description: The version of Python to use for building.
+          required: true
+
+
+env:
+  AYON_SERVER_URL: ${{secrets.AYON_SERVER_URL}}
+  AYON_API_KEY: ${{secrets.AYON_API_KEY}}
+
+
+jobs:
+  build-win:
+      runs-on: windows-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v3
+        - name: TEMP - Remove poetry.lock file
+          run: rm poetry.lock
+        - name: Make envfile
+          uses: SpicyPizza/create-envfile@v2.0
+          with:
+            envkey_AYON_SERVER_URL: ${{ secrets.AYON_SERVER_URL }}
+            envkey_AYON_API_KEY: ${{ secrets.AYON_API_KEY }}
+            file_name: .env
+            fail_on_empty: false
+            sort_keys: false
+        - name: Setup Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.9.6'
+        - name: Run Ayon-Dependency-Tool
+          run: |
+            Set-ExecutionPolicy -ExecutionPolicy unrestricted -Scope LocalMachine
+            mkdir build_win
+            ./start.ps1 install
+            ./start.ps1 create -b ${{github.event.inputs.bundlename}} --server ${{secrets.AYON_SERVER_URL}} --api-key ${{secrets.AYON_API_KEY}} --output-dir ./build_win
+            cd build_win
+            ls
+
+          shell: pwsh
+
+  build-macos:
+    runs-on: macos-12
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9.6'
+      - name: Run Ayon-Dependency-Tool
+        run: |
+          ./start.sh install
+          ./start.sh create -b ${{github.event.inputs.bundlename}} --server ${{secrets.AYON_SERVER_URL}} --api-key ${{secrets.AYON_API_KEY}}
+          ls
+        shell: bash
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9.6'
+
+      - name: Run Ayon-Dependency-Tool
+        run: |
+          ./start.sh install
+          ./start.sh create -b ${{github.event.inputs.bundlename}} --server ${{secrets.AYON_SERVER_URL}} --api-key ${{secrets.AYON_API_KEY}}
+          ls
+        shell: bash
