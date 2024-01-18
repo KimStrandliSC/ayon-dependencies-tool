@@ -22,11 +22,11 @@ env:
 jobs:
   build-win:
       runs-on: windows-latest
-      strategy:
-        matrix:
-          python:
-            - 3.9.6
       steps:
+        - name: Setup Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.9.6'
         - name: setup pyenv
           id: pyenv_installation
           uses: "gabrielfalcao/pyenv-action@v18"
@@ -40,6 +40,8 @@ jobs:
           run: rm poetry.lock
         - name: Run Ayon-Dependency-Tool
           run: |
+            pyenv global 3.9.6
+            pyenv local 3.9.6
             Set-ExecutionPolicy -ExecutionPolicy unrestricted -Scope LocalMachine
             mkdir build_win
             ./start.ps1 install
