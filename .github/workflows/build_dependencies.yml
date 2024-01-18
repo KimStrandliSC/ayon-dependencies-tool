@@ -23,26 +23,30 @@ jobs:
   build-win:
       runs-on: windows-latest
       steps:
-        - name: Setup Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.9.6'
+        - name: Checkout Code
+          uses: actions/checkout@v3
+        - name: TEMP - Remove poetry.lock file
+          run: rm poetry.lock
         - name: setup pyenv
           id: pyenv_installation
           uses: "gabrielfalcao/pyenv-action@v18"
+          with:
+            default: 3.9.6
+        - name: Config pyenv
+          run: |
+            pyenv global 3.9.6
+            pyenv local 3.9.6
         - name: debug pyenv
           run: |
             echo ${{ steps.pyenv_installation.outputs.pyenv_root }}
             $result = pyenv which python
             Write-Output $result
-        - name: Checkout Code
-          uses: actions/checkout@v3
-        - name: TEMP - Remove poetry.lock file
-          run: rm poetry.lock
+            Write-Host $result
+            Write-Host pyenv which python
+            pyenv which python
         - name: Run Ayon-Dependency-Tool
           run: |
-            pyenv global 3.9.6
-            pyenv local 3.9.6
+
             Set-ExecutionPolicy -ExecutionPolicy unrestricted -Scope LocalMachine
             mkdir build_win
             ./start.ps1 install
