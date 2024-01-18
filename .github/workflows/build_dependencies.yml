@@ -27,15 +27,17 @@ jobs:
           python:
             - 3.9.6
       steps:
+        - name: setup pyenv
+          id: pyenv_installation
+          uses: "gabrielfalcao/pyenv-action@v18"
+          with:
+              default: 3.9
+        - name: debug pyenv
+          run: echo ${{ steps.pyenv_installation.outputs.pyenv_root }}
         - name: Checkout Code
           uses: actions/checkout@v3
         - name: TEMP - Remove poetry.lock file
           run: rm poetry.lock
-        - name: Install python version
-          uses: gabrielfalcao/pyenv-action@v18
-          with:
-            default: "${{ matrix.python }}"
-            command: pip install -U pip  # upgrade pip after installing python
         - name: Run Ayon-Dependency-Tool
           run: |
             Set-ExecutionPolicy -ExecutionPolicy unrestricted -Scope LocalMachine
