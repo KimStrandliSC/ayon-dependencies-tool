@@ -38,7 +38,11 @@ jobs:
         id: package
         uses: jaywcjlove/github-action-read-file@main
         with:
-          path: .env
+          path: ./.env
+      - name: Read file contents
+        uses: andstor/file-reader-action@v1
+        with:
+          path: ".env"
       - name: Run Ayon-Dependency-Tool
         run: |
           ./start.sh list-bundles
